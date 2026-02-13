@@ -26,7 +26,7 @@ class AuthService
             Response::error("Email already exists", 409);
         }
 
-        // 🔐 Strong password hashing (Argon2id)
+        // Strong password hashing (Argon2id)
         $hashedPassword = password_hash(
             $data['password'],
             PASSWORD_ARGON2ID
@@ -62,7 +62,7 @@ class AuthService
             $this->user->updatePassword($user['id'], $newHash);
         }
 
-        // 🔹 Access Token
+        //  Access Token
         $payload = [
             'user_id' => $user['id'],
             'email'   => $user['email']
@@ -70,10 +70,10 @@ class AuthService
 
         $accessToken = JWT::encode($payload);
 
-        // 🔹 Refresh Token (RAW)
+        //  Refresh Token (RAW)
         $refreshToken = bin2hex(random_bytes(64));
 
-        // 🔐 Hash with Argon2id for better security
+        // Hash with Argon2id for better security
         $hashedToken = password_hash($refreshToken, PASSWORD_ARGON2ID);
 
         $refreshExpiry = date('Y-m-d H:i:s', strtotime('+7 days'));
@@ -92,7 +92,7 @@ class AuthService
             'samesite' => 'Strict'
         ]);
 
-        // 🔐 Generate CSRF Token
+        // Generate CSRF Token
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
 
@@ -126,7 +126,7 @@ class AuthService
             Response::error("Refresh token expired", 401);
         }
 
-        // 🔁 Rotate token
+        // Rotate token
         $this->user->deleteRefreshToken($tokenData['id']);
 
         $newToken = bin2hex(random_bytes(64));
