@@ -46,27 +46,27 @@ $router->add('POST', '/api/logout', [$authController, 'logout']);
 
 //protected routes (require authentication)
 
-//GET ALL PATIENTS
+// =============================
+// PROTECTED ROUTES
+// =============================
+
+// GET ALL PATIENTS
+$router->add('GET', '/api/patients', function () use ($patientController) {
+    AuthMiddleware::handle();
+    $patientController->index();
+});
+
+// CREATE PATIENT
 $router->add('POST', '/api/patients', function () use ($patientController) {
     AuthMiddleware::handle();
     CsrfMiddleware::handle();
     $patientController->store();
 });
 
-
-//CREATE PATIENT
-$router->add('POST', '/api/patients', function () use ($patientController) {
-    AuthMiddleware::handle();
-    $patientController->store();
-});
-
-/**
- * UPDATE PATIENT
- * Example:
- * PUT /api/patients/update?id=1
- */
+// UPDATE PATIENT
 $router->add('PUT', '/api/patients/{id}', function ($params) use ($patientController) {
     AuthMiddleware::handle();
+    CsrfMiddleware::handle();
 
     $id = $params['id'] ?? null;
 
@@ -78,12 +78,14 @@ $router->add('PUT', '/api/patients/{id}', function ($params) use ($patientContro
         ]);
         return;
     }
-    $patientController->update($params['id']);
 
+    $patientController->update($id);
 });
-// patch route added
+
 $router->add('PATCH', '/api/patients/{id}', function ($params) use ($patientController) {
+
     AuthMiddleware::handle();
+    CsrfMiddleware::handle();   // Important for security
 
     $id = $params['id'] ?? null;
 
@@ -100,10 +102,10 @@ $router->add('PATCH', '/api/patients/{id}', function ($params) use ($patientCont
 });
 
 
-//DELETE PATIENT
-
+// DELETE PATIENT
 $router->add('DELETE', '/api/patients/{id}', function ($params) use ($patientController) {
     AuthMiddleware::handle();
+    CsrfMiddleware::handle();
 
     $id = $params['id'] ?? null;
 
@@ -116,7 +118,7 @@ $router->add('DELETE', '/api/patients/{id}', function ($params) use ($patientCon
         return;
     }
 
-    $patientController->destroy($params['id']);
+    $patientController->destroy($id);
 });
 
 //DISPATCH REQUEST
