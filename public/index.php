@@ -53,6 +53,7 @@ $router->add('POST', '/api/logout', [$authController, 'logout']);
 // GET ALL PATIENTS
 $router->add('GET', '/api/patients', function () use ($patientController) {
     AuthMiddleware::handle();
+    CsrfMiddleware::handle();
     $patientController->index();
 });
 

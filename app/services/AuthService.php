@@ -118,7 +118,7 @@ class AuthService
         $tokenData = $this->user->findRefreshTokenByRawToken($rawToken);
 
         if (!$tokenData) {
-            Response::error("Invalid refresh token", 401);
+           Response::error("Refresh token missing. Please login again.", 401);
         }
 
         if (strtotime($tokenData['expires_at']) < time()) {

@@ -4,24 +4,27 @@ class CsrfMiddleware
 {
     public static function handle()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
+        $headers = getallheaders();
 
-        // Only validate for state-changing requests
-        if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        $csrfHeader = $headers['X-CSRF-Token'] ?? '';
 
-            $headers = getallheaders();
-            $clientToken = $headers['X-CSRF-Token'] ?? '';
+        if (!isset($_SESSION['csrf_token'])) {
+            http_response_code(403);
+            echo json_encode([
+                "status" => false,
+                "message" => "CSRF token missing in session"
+            ]);
+            exit;
+        }
 
-            if (empty($_SESSION['csrf_token']) ||
-                !hash_equals($_SESSION['csrf_token'], $clientToken)) {
-
-                http_response_code(403);
-                echo json_encode([
-                    "status" => false,
-                    "message" => "Invalid CSRF token"
-                ]);
-                exit;
-            }
+        if (!hash_equals($_SESSION['csrf_token'], $csrfHeader)) {
+            http_response_code(403);
+            echo json_encode([
+                "status" => false,
+                "message" => "Invalid CSRF token"
+            ]);
+            exit;
         }
     }
 }
+
